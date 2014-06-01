@@ -2,12 +2,13 @@ package project.game;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -72,11 +73,19 @@ public class NavigationPanel extends JPanel {
 				south.add(close);
 
 				about.add(south, BorderLayout.SOUTH);
-				TextArea text = new TextArea(
-						"Alleyway Version 1.0  \nCopyright 2014 by T. Petrov  \nFreeware. All Rights Reserved  \n",
-						5, 40);
-				text.setEditable(false);
-				about.add(text, BorderLayout.CENTER);
+				StringBuilder aboutText = new StringBuilder(128);
+				aboutText.append("<html>");
+				aboutText.append("<pre>");
+				aboutText.append(" Alleyway Version 1.2            ");
+				aboutText.append("<br/>");
+				aboutText.append(" Copyright 2014 by T. Petrov     ");
+				aboutText.append("<br/>");
+				aboutText.append(" Freeware. All Rights Reserved!  ");
+				aboutText.append("</pre>");
+				aboutText.append("</html>");
+				
+				JLabel aboutLabel = new JLabel(aboutText.toString());
+				about.add(aboutLabel, BorderLayout.CENTER);
 				about.setVisible(true);
 				about.pack();
 
@@ -105,12 +114,30 @@ public class NavigationPanel extends JPanel {
 				JPanel south = new JPanel();
 				south.add(close);
 
+//				help.add(south, BorderLayout.SOUTH);
+//				TextArea helpText = new TextArea(
+//						"Buttons:  \nLeft Arrow - Move Left  \nRight Arrow - Move Right  \nEnter - Pause Game / Unpause / Start New Game \nEsc - Exit  \n");
+//				helpText.setEditable(false);
+
 				help.add(south, BorderLayout.SOUTH);
-				TextArea helpText = new TextArea(
-						"Buttons:  \nLeft Arrow - Move Left  \nRight Arrow - Move Right  \nEnter - Pause Game / Unpause / Start New Game \nEsc - Exit  \n");
-				helpText.setEditable(false);
 				
-				help.add(helpText, BorderLayout.CENTER);
+				StringBuilder helpText = new StringBuilder(128);
+				helpText.append("<html>");
+				helpText.append("<pre>");
+				helpText.append(" Buttons:");
+				helpText.append("<br/>");
+				helpText.append(" Left Arrow - Move Left");
+				helpText.append("<br/>");
+				helpText.append(" Right Arrow - Move Right  ");
+				helpText.append("<br/>");
+				helpText.append(" Enter - Pause Game / Unpause / Start New Game  ");
+				helpText.append("<br/>");
+				helpText.append(" Esc - Exit  ");
+				helpText.append("</pre>");
+				helpText.append("</html>");
+				
+				JLabel helpLabel = new JLabel(helpText.toString());
+				help.add(helpLabel, BorderLayout.CENTER);
 				help.setVisible(true);
 				help.pack();
 			}
@@ -124,5 +151,4 @@ public class NavigationPanel extends JPanel {
 		add(menubar);
 
 	}
-
 }

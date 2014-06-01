@@ -12,13 +12,13 @@ public class Brick extends GameObject {
 	 */
 	private static final long serialVersionUID = 5106372808401735999L;
 
-	String bricks[] = { "images/brick-orange.png", "images/brick-yellow.png",
-			"images/brick-red.png", "images/brick-blue.png",
-			"images/brick-green.png" };
-
+	String bricks[] = { "images/brick-orange2.png", "images/brick-yellow2.png",
+			"images/brick-red2.png", "images/brick-blue2.png",
+			"images/brick-green2.png" };	
+	
 	public Brick(int x, int y) {
 		Random random = new Random();
-		int rand = random.nextInt(bricks.length - 1);
+		int rand = random.nextInt(bricks.length);
 		this.x = x;
 		this.y = y;
 

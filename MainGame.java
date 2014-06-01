@@ -1,45 +1,55 @@
 package project.game;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
+//import java.util.Timer;
+//import java.util.TimerTask;
+
+import java.util.Random;
 
 import javax.swing.JPanel;
 
 public class MainGame extends JPanel {
 	/**
-	 *
-	 */
+	*
+	*/
 	private static final long serialVersionUID = -6482705247828045324L;
 
 	Player player = null;
-	Timer timer = null;
-	Timer paintTimer = null;
-	ScheduleTask myScheduleTask = null;
-	PaintTask paintTask = null;
+	Background background = null;
+	MoveThread moveObjects = null;
+	MovePlayerThread movePlayerThread = null;
+	PaintThread paintThread = null;
+	KeyListener myListenner = null;
 	Ball ball = null;
 	ArrayList<Brick> bricks = null;
+	ArrayList<FallingObject> rocks = null;
 	String msg = null;
+	String playerFile = null;
 	boolean isGameActive = false;
 	boolean isGamePaused = false;
 	boolean isGameStarted;
 	boolean isLevelPassed = false;
 	boolean isGameEnd = false;
-	int speed;
-	int level;
+	int speed[] = new int[1]; // The Level class initialize the value
+	int tempSpeed = 0;
+	int level[] = new int[1]; // The Level class initialize the value
 
 	MainGame() {
-		level = 0;
-		addKeyListener(new MyAdapter());
+		level[0] = 0;
+		myListenner = new MyAdapter();
+		addKeyListener(myListenner);
 		setFocusable(true);
 		setDoubleBuffered(true);
 		bricks = new ArrayList<Brick>();
+		rocks = new ArrayList<FallingObject>();
 		init();
 		msg = "Press Enter to Start!";
 
@@ -47,16 +57,30 @@ public class MainGame extends JPanel {
 
 	public void init() {
 		isGameStarted = true;
-		player = new Player();
+		background = new Background();
+		Level.setLevel(level, speed, bricks);
+		tempSpeed = speed[0];
+		playerFile = Constants.LEVELS_LIST.get(level[0]).player;
+		player = new Player(playerFile);
 		ball = new Ball(player.getX() + player.getWidth() / 2
 				- Constants.BALL_RADIUS / 2, player.getY()
 				- Constants.BALL_RADIUS);
-		setLevel();
 
+		paintThread = new PaintThread();
+		paintThread.start();
+		paintThread.setPriority(3);
+		System.out.println("Paint Thread Priority is : "
+				+ paintThread.getPriority());
+		movePlayerThread = new MovePlayerThread();
+		movePlayerThread.start();
 	}
 
 	public void paint(Graphics g) {
+
 		super.paint(g);
+		g.drawImage(background.getImage(), background.getX(),
+				background.getY(), background.getWidth(),
+				background.getHeight(), this);
 
 		g.drawImage(player.getImage(), player.getX(), player.getY(),
 				player.getWidth(), player.getHeight(), this);
@@ -65,21 +89,33 @@ public class MainGame extends JPanel {
 
 		Iterator<Brick> it = bricks.iterator();
 		while (it.hasNext()) {
+
 			Brick br = it.next();
 			g.drawImage(br.getImage(), br.getX(), br.getY(), br.getWidth(),
 					br.getHeight(), this);
 
 		}
 
+		if (!rocks.isEmpty()) {
+			Iterator<FallingObject> i = rocks.iterator();
+			while (i.hasNext()) {
+				FallingObject r = i.next();
+				if (r.getVisibility()) {
+					g.drawImage(r.getImage(), r.getX(), r.getY(), r.getWidth(),
+							r.getHeight(), this);
+				}
+			}
+		}
+
 		if (!isGameActive || isGamePaused) {
-			g.setFont(new Font("Bold", Font.BOLD, 40));
+			g.setFont(new Font("Bold", Font.BOLD, 36));
+			setForeground(Color.cyan);
 			int stringLen = (int) g.getFontMetrics().getStringBounds(msg, g)
 					.getWidth();
 			int centerXPosition = Constants.WIDTH / 2 - stringLen / 2;
 			int centerYPosition = Constants.GAME_PANEL_HEIGTH * 2 / 3;
 			g.drawString(msg, centerXPosition, centerYPosition);
 		}
-
 		Toolkit.getDefaultToolkit().sync();
 		g.dispose();
 	}
@@ -92,6 +128,8 @@ public class MainGame extends JPanel {
 			if (key == KeyEvent.VK_ENTER) {
 				if (!isGamePaused && isGameActive) {
 					pauseGame("PAUSE");
+					paintThread.suspendThread(50);
+
 				} else if (isGamePaused && isGameActive) {
 					resumeGame();
 				} else {
@@ -102,6 +140,16 @@ public class MainGame extends JPanel {
 				System.exit(0);
 			} else if (key == KeyEvent.VK_Q) {
 				bricks.clear();
+			} else if (key == KeyEvent.VK_A) {
+				ball.stopMove();
+			} else if (key == KeyEvent.VK_Z) {
+				ball.resumeMove();
+			} else if (key == KeyEvent.VK_W) {
+				player.makePlayerSmall();
+			} else if (key == KeyEvent.VK_E) {
+				player.makePlayerBig();
+			} else if (key == KeyEvent.VK_R) {
+				rocks.add(new FallingObject(ball.getX(), ball.getY()));
 			} else {
 				player.keyReleased(e);
 			}
@@ -113,30 +161,156 @@ public class MainGame extends JPanel {
 
 	}
 
-	class ScheduleTask extends TimerTask {
+	class PaintThread extends Thread {
+
+		boolean isPainted = false;
 
 		@Override
 		public void run() {
-			ball.move();
-			player.move();
-			collisionCheck();
-			// repaint();
+			while (true) {
+
+				try {
+					repaint();
+					Thread.sleep(10);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				synchronized (this) {
+					while (isPainted) {
+
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+
+		public void suspendThread() {
+			isPainted = true;
+			System.out.println("Suspend paint thread");
+		}
+
+		public void suspendThread(long time) {
+
+			try {
+				Thread.sleep(time);
+				isPainted = true;
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Suspend paint thread after " + time);
+		}
+
+		public synchronized void resumeThread() {
+			isPainted = false;
+			System.out.println("Resume paint thread");
+			notify();
+		}
+
+	}
+
+	class MoveThread extends Thread {
+
+		boolean suspended = false;
+
+		@Override
+		public void run() {
+
+			while (true) {
+
+				try {
+
+					ball.move();
+					// System.out.println("X coordinate of the BALL is "
+					// + ball.getX() + "  Y coordinate of the BALL is "
+					// + ball.getY());
+					player.move();
+					collisionCheck();
+					if (!rocks.isEmpty()) {
+						Iterator<FallingObject> i = rocks.iterator();
+						while (i.hasNext()) {
+							FallingObject r = i.next();
+							r.move();
+						}
+					}
+					
+			
+					paintThread.resumeThread();
+					Thread.sleep(tempSpeed);
+
+					synchronized (this) {
+						while (suspended) {
+							System.out.println("Suspend move thread");
+							wait();
+						}
+					}
+					paintThread.suspendThread();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}
+
+		public void suspendThread() {
+			suspended = true;
+		}
+
+		public synchronized void resumeThread() {
+			suspended = false;
+			System.out.println("Resume move thread");
+			notify();
 		}
 	}
 
-	class PaintTask extends TimerTask {
+	class MovePlayerThread extends Thread {
+
+		boolean startFlag = true;
 
 		@Override
 		public void run() {
-			repaint();
+
+			while (startFlag) {
+				player.move();
+				ball.setX(player.getX() + (player.getWidth() / 2)
+						- (ball.getWidth() / 2));
+				try {
+					Thread.sleep(tempSpeed);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
 		}
+
+		public void stopThread() {
+			startFlag = false;
+		}
+
 	}
 
 	public void collisionCheck() {
 
-		if (ball.getY() == Constants.GAME_PANEL_HEIGTH - 2 * ball.getHeight()) {
-			stopGame("GAME OVER");
-			isGameStarted = false;
+		if (ball.getY() >= Constants.GAME_PANEL_HEIGTH - 2 * ball.getHeight()) {
+			if (--player.life > 0) {
+				resetBallAndPlayer();
+				pauseGame("Lives left: " + player.life);
+				movePlayerThread = new MovePlayerThread();
+				movePlayerThread.start();
+
+			} else {
+				stopGame("GAME OVER");
+				isGameStarted = false;
+			}
+
 		}
 
 		if (ball.getRect().intersects(player.getRect())) {
@@ -144,7 +318,8 @@ public class MainGame extends JPanel {
 			ball.setYDir(-1);
 
 			// =================================================================
-			// change X coordinate of the ball, if the player touch it with the
+			// change X coordinate of the ball, if the player touch it with
+			// the
 			// end of the stick
 			if (ball.getXDir() == 1
 					&& ball.getX() < (player.getX() + player.getWidth() / 5)) {
@@ -159,9 +334,16 @@ public class MainGame extends JPanel {
 			// =================================================================
 
 		}
-
-		if (ball.getRect().intersects(player.getRect(ball.getXDir()))) {
-			ball.changeXDir();
+		// check is the ball paused
+		try {
+			if (ball.getRect().intersects(player.getRect(ball.getXDir()))) {
+				ball.changeXDir();
+			}
+		} catch (NullPointerException ex) {
+			if (ball.getXDir() == 0)
+				return;
+			else
+				ex.printStackTrace();
 		}
 
 		Iterator<Brick> it = bricks.iterator();
@@ -170,23 +352,21 @@ public class MainGame extends JPanel {
 			Brick br = it.next();
 			if (ball.getRect().intersects(br.getRect())) {
 				bricks.remove(counter);
+
+				if (generateFallingRock()) {
+					// Add new falling rock in the List
+					rocks.add(new FallingObject(ball.getX(), ball.getY()));
+				}
 				// manage the Y movement
-				// if (ball.getYDir() == -1) {
-				// ball.setYDir(1);
-				// } else {
-				// ball.setYDir(-1);
-				// }
 				if (ball.getRect().intersects(br.getXRect(ball.getYDir()))) {
 					ball.changeYDir();
-					System.out.println("change y");
 				}
 
-				// mangage the X movement
+				// manage the X movement
 				if (ball.getRect().intersects(br.getYRect(ball.getXDir()))) {
 					ball.changeXDir();
-					System.out.println("change x");
+
 				}
-				// repaint();
 				break;
 
 			}
@@ -195,23 +375,42 @@ public class MainGame extends JPanel {
 
 		if (bricks.size() == 0) {
 
-			if (level < Constants.END_LEVEL) {
-				level++;
+			if (level[0] < Constants.END_LEVEL) {
+				level[0]++;
 				stopGame("Press Enter for next Level!");
 			} else {
 				isGameEnd = true;
 				stopGame("WIN!");
 			}
 		}
+
+		// check for falling symbols
+		if (rocks.size() > 0) {
+			Iterator<FallingObject> i = rocks.iterator();
+			counter = 0;
+			while (i.hasNext()) {
+				FallingObject r = i.next();
+				if (r.getRect().intersects(player.getRect())
+						|| r.getY() > Constants.GAME_PANEL_HEIGTH) {
+					if (r.getRect().intersects(player.getRect())) {
+						r.setVisibility(false);
+						setFunction(r);
+					}
+					rocks.remove(counter);
+					break;
+				}
+				counter++;
+			}
+		}
+
+	
 	}
 
 	public void stopGame(String msg) {
-
-		myScheduleTask.cancel();
-		timer.cancel();
 		isGameActive = false;
 		this.msg = msg;
-		// repaint();
+		moveObjects.suspendThread();
+		paintThread.suspendThread();
 	}
 
 	public void startGame() {
@@ -220,180 +419,114 @@ public class MainGame extends JPanel {
 		} else if (!isGameActive && !isGameStarted) {
 			init();
 		} else {
-			this.player.resetState();
-			this.ball.resetState(player.getX() + player.getWidth() / 2
-					- Constants.BALL_RADIUS / 2, player.getY()
-					- Constants.BALL_RADIUS);
+			// this.player.resetState();
+			// this.ball.resetState(player.getX() + player.getWidth() / 2
+			// - Constants.BALL_RADIUS / 2, player.getY()
+			// - Constants.BALL_RADIUS);
+			System.out.println("What TODO");
 		}
-		this.timer = new Timer();
-		this.myScheduleTask = new ScheduleTask();
-		this.timer.scheduleAtFixedRate(this.myScheduleTask, 100, speed);
-		//this.paintTimer = new Timer();
-		//this.paintTask = new PaintTask();
-		//this.paintTimer.scheduleAtFixedRate(this.paintTask, 100, 2 * speed);
-		
-		new Thread(new Runnable() {
-			public void run() {
-				while(true){
-					repaint();
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				
-			}
-		}).start();
-		
+		moveObjects = new MoveThread();
+		moveObjects.start();
 		isGameActive = true;
-
+		movePlayerThread.stopThread();
+		try {
+			movePlayerThread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void pauseGame(String msg) {
-		myScheduleTask.cancel();
-		timer.cancel();
+
+		moveObjects.suspendThread();
 		isGamePaused = true;
 		this.msg = msg;
-		// repaint();
 
 	}
 
 	public void resumeGame() {
-		this.timer = new Timer();
-		this.myScheduleTask = new ScheduleTask();
-		this.timer.scheduleAtFixedRate(this.myScheduleTask, 100, speed);
+		moveObjects.resumeThread();
 		isGamePaused = false;
+		movePlayerThread.stopThread();
+		try {
+			movePlayerThread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public void setLevel() {
-		// initialize the BRICKS
-		int x = Constants.OFFSET_SIDE;
-		int y = Constants.OFFSET_TOP;
-		int offset = 2;
-		int bricksCount = 0;
-		int figure = -1;
-		Constants.LEVELS.get(level);
-
-		for (String key : Constants.LEVELS.get(level).keySet()) {
-
-			if (key.equals("speed")) {
-				this.speed = Constants.LEVELS.get(level).get(key);
-			}
-
-			if (key.equals("bricks")) {
-				bricksCount = Constants.LEVELS.get(level).get(key);
-			}
-
-			if (key.equals("figure")) {
-				figure = Constants.LEVELS.get(level).get(key);
-			}
-		}
-
-		bricks.clear();
-
-		int count = bricksCount;
-		int cols = 0;
-		int rowCount = 0;
-		int tempOffset = 0;
-
-		if (Constants.FIGURES[figure].equals("rectangle")
-				|| Constants.FIGURES[figure].equals("square")) {
-
-			for (int i = 0; i < bricksCount / 10; i++) {
-				for (int j = 0; j < 10; j++) {
-					bricks.add(new Brick(x, y));
-					x += (bricks.get(bricks.size() - 1).getWidth() + offset);
-				}
-				x = Constants.OFFSET_SIDE;
-				y += (bricks.get(bricks.size() - 1).getHeight() + offset);
-			}
-		} else if (Constants.FIGURES[figure].equals("triangle")) {
-
-			cols = 10;
-			tempOffset = Constants.OFFSET_SIDE;
-			rowCount = 0;
-			while (count > 0) {
-				for (int i = 0; i < cols; i++) {
-					bricks.add(new Brick(x, y));
-					x += (bricks.get(bricks.size() - 1).getWidth() + offset);
-					count--;
-				}
-				y += (bricks.get(bricks.size() - 1).getHeight() + offset);
-				rowCount++;
-
-				if (rowCount % 2 == 0) {
-					cols--;
-					tempOffset += bricks.get(bricks.size() - 1).getWidth() / 2
-							+ offset / 2;
-					x = tempOffset;
-				} else {
-					x = tempOffset;
-				}
-
-			}
-		} else if (Constants.FIGURES[figure].equals("rhombus")) {
-
-			cols = 2;
-			tempOffset = Constants.WIDTH / 2 - Constants.BRICK_WIDTH * 2;
-			x = tempOffset;
-			rowCount = 0;
-			while (count > 0) {
-				System.out.println("temp offset = " + tempOffset);
-				for (int i = 0; i < cols; i++) {
-					bricks.add(new Brick(x, y));
-					x += (bricks.get(bricks.size() - 1).getWidth() + offset);
-					count--;
-				}
-				if (rowCount < 4) {
-					cols += 2;
-					tempOffset -= (Constants.BRICK_WIDTH + (offset / 2)) * 2;
-					x = tempOffset;
-
-				} else if (rowCount > 6) {
-					cols -= 2;
-					tempOffset += (Constants.BRICK_WIDTH + (offset / 2)) * 2;
-					x = tempOffset;
-				} else {
-					x = tempOffset;
-				}
-				rowCount++;
-				y += (bricks.get(bricks.size() - 1).getHeight() + offset);
-
-			}
-
-		} else if (Constants.FIGURES[figure].equals("hexagon")) {
-			// TODO
-			cols = 4;
-			tempOffset = (Constants.WIDTH / 2) - (2 * Constants.BRICK_WIDTH)
-					- (3 * offset) - Constants.OFFSET_SIDE;
-			x = tempOffset;
-			rowCount = 0;
-			while (count > 0) {
-				for (int i = 0; i < cols; i++) {
-					bricks.add(new Brick(x, y));
-					x += (bricks.get(bricks.size() - 1).getWidth() + offset);
-					count--;
-				}
-
-				if (rowCount < 3) {
-					cols += 2;
-					tempOffset -= (Constants.BRICK_WIDTH + (offset / 2)) * 2;
-					x = tempOffset;
-
-				} else if (rowCount > 7) {
-					cols -= 2;
-					tempOffset += (Constants.BRICK_WIDTH + (offset / 2)) * 2;
-					x = tempOffset;
-				} else {
-					x = tempOffset;
-				}
-				rowCount++;
-				y += (bricks.get(bricks.size() - 1).getHeight() + offset);
-
-			}
-		}
-
+	public void resetBallAndPlayer() {
+		player.setPlayerImage(playerFile);
+		player.resetState();
+		rocks.clear();
+		tempSpeed = speed[0];
+		ball.resetState(player.getX() + player.getWidth() / 2
+				- Constants.BALL_RADIUS / 2, player.getY()
+				- Constants.BALL_RADIUS);
 	}
+
+	public boolean generateFallingRock() {
+
+		Random random = new Random();
+		int rand = random.nextInt(10);
+		if (rand == 1) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public void setFunction(FallingObject fo) {
+		if (fo != null) {
+			System.out.println(fo.getFunction());
+			switch (fo.getFunction()) {
+
+			case 0: {
+				// make player big
+				if (player != null)
+					player.makePlayerSmall();
+				break;
+			}
+			case 1: {
+				// make player small
+				if (player != null)
+					player.makePlayerBig();
+				break;
+			}
+			case 2: {
+				// give player one life
+				if (player != null)
+					player.life++;
+				msg = "+1 Life";
+				pauseGame(msg);
+				//Draw the msg for 500ms
+				paintThread.resumeThread();
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				resumeGame();
+				break;
+			}
+			case 3: {
+				// speed down
+				tempSpeed -= 3;
+				break;
+			}
+			case 4: {
+				// speed up
+				tempSpeed += 3;
+				break;
+			}
+			default: {
+				break;
+			}
+			}
+		}
+	}
+
 }

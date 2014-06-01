@@ -5,36 +5,71 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 
-public class Player extends GameObject{
+public class Player extends GameObject {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5251546542863186464L;
+	private String bigPlayer = Constants.PLAYER_FILES[0];
+	private String smallPlayer = Constants.PLAYER_FILES[1];
+	private String currentPlayer = null;
 	int dx;
-	String player = "images/player.png";
+	int life;
 
-	public Player() {
+	public Player(String file) {
 
+		// this.player = player;
+		System.out.println("==================================");
+		System.out.println("PLAYER CREATED");
+		System.out.println("==================================");
+		life = 3;
+		setPlayerImage(file);
+		resetState();
+
+	}
+
+	public void setPlayerImage(String file) {
 		try {
-			ImageIcon ii = new ImageIcon(this.getClass().getResource(player));
+			ImageIcon ii = new ImageIcon(this.getClass().getResource(file));
 			image = ii.getImage();
 			width = image.getWidth(null);
 			heigth = image.getHeight(null);
+			currentPlayer = file;
 		} catch (Exception e) {
 			System.out.println("Error loading player image!");
+			System.out.println(file);
 		}
 
-		resetState();
+	}
 
+	public void makePlayerBig() {
+		if (!currentPlayer.equals(bigPlayer)) {
+			System.out.println("==================================");
+			System.out.println("PLAYER IMAGE CHANGED ");
+			System.out.println("==================================");
+			setPlayerImage(bigPlayer);
+			currentPlayer = bigPlayer;
+
+		}
+	}
+
+	public void makePlayerSmall() {
+		if (!currentPlayer.equals(smallPlayer)) {
+			System.out.println("==================================");
+			System.out.println("PLAYER IMAGE CHANGED ");
+			System.out.println("==================================");
+			setPlayerImage(smallPlayer);
+			currentPlayer = smallPlayer;
+		}
 	}
 
 	public void move() {
 		x += dx;
 		if (x <= 0)
 			x = 0;
-		if (x >= Constants.PLAYER_RIGHT)
-			x = Constants.PLAYER_RIGHT;
+		if (x >= Constants.VISIBLE_WIDTH - this.width)
+			x = Constants.VISIBLE_WIDTH - this.width;
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -65,7 +100,7 @@ public class Player extends GameObject{
 	}
 
 	public void resetState() {
-		x = Constants.PLAYER_RIGHT / 2;
+		x = (Constants.VISIBLE_WIDTH - this.width) / 2;
 		y = Constants.BOTTOM - getHeight() - 40;
 	}
 

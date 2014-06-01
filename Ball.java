@@ -10,12 +10,15 @@ public class Ball extends GameObject {
 	private static final long serialVersionUID = -8031780375878264030L;
 	private int xdir;
 	private int ydir;
-//	private int tempXDir;
-//	private int tempYDir;
+	private int tempXDir;
+	private int tempYDir;
+	private boolean isBallStopped = false;
+	private final int X_DIR_MOVE_SPEED = 2;
+	private final int Y_DIR_MOVE_SPEED = 2;
 
 	public Ball(int x, int y) {
-//		tempXDir = 0;
-//		tempYDir = 0;
+		tempXDir = 0;
+		tempYDir = 0;
 		// set random X direction
 		Random random = new Random();
 		int r = random.nextInt(100);
@@ -33,39 +36,41 @@ public class Ball extends GameObject {
 
 	public void move() {
 
-		x += xdir;
-		y += ydir;
-
-		if (x == 0) {
+		x += (X_DIR_MOVE_SPEED * xdir);
+		y += (Y_DIR_MOVE_SPEED * ydir);
+		if (x <= 0) {
 			setXDir(1);
 		}
 
-		if (x == Constants.WIDTH - width) {
-			setXDir(-1);
+		if (x >= Constants.VISIBLE_WIDTH - width) {
+			changeXDir();
 		}
 
-		if (y == 0) {
-			setYDir(1);
+		if (y <= 0) {
+			changeYDir();
 		}
 
-		// if (y == Constants.GAME_PANEL_HEIGTH - 2 * heigth) {
-		// setYDir(-1);
-		// }
 	}
 
-//	public void stopMove() {
-//
-//		tempXDir = getXDir();
-//		tempYDir = getYDir();
-//		setXDir(0);
-//		setYDir(0);
-//	}
-//
-//	public void resumeMove() {
-//
-//		setXDir(tempXDir);
-//		setYDir(tempYDir);
-//	}
+	
+	public void stopMove() {
+		if (!isBallStopped) {
+			tempXDir = getXDir();
+			tempYDir = getYDir();
+			setXDir(0);
+			setYDir(0);
+			isBallStopped = true;
+		}
+	}
+
+	public void resumeMove() {
+
+		if (isBallStopped) {
+			setXDir(tempXDir);
+			setYDir(tempYDir);
+			isBallStopped = false;
+		}
+	}
 
 	public void resetState(int x, int y) {
 		this.x = x;
@@ -81,7 +86,9 @@ public class Ball extends GameObject {
 	}
 
 	public void changeXDir() {
-		if (this.xdir == 1) {
+		if (this.xdir == 0) {
+			return;
+		} else if (this.xdir == 1) {
 			setXDir(-1);
 		} else {
 			setXDir(1);
@@ -97,7 +104,9 @@ public class Ball extends GameObject {
 	}
 
 	public void changeYDir() {
-		if (this.ydir == 1) {
+		if (this.ydir == 0) {
+			return;
+		} else if (this.ydir == 1) {
 			setYDir(-1);
 		} else {
 			setYDir(1);
