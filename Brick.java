@@ -14,13 +14,20 @@ public class Brick extends GameObject {
 
 	String bricks[] = { "images/brick-orange2.png", "images/brick-yellow2.png",
 			"images/brick-red2.png", "images/brick-blue2.png",
-			"images/brick-green2.png" };	
-	
+			"images/brick-green2.png" };
+
+	public boolean haveFallingRock;
+
 	public Brick(int x, int y) {
 		Random random = new Random();
 		int rand = random.nextInt(bricks.length);
 		this.x = x;
 		this.y = y;
+		if (generateRock()) {
+			haveFallingRock = true;
+		} else {
+			haveFallingRock = false;
+		}
 
 		try {
 			ImageIcon ii = new ImageIcon(this.getClass().getResource(
@@ -44,7 +51,22 @@ public class Brick extends GameObject {
 		}
 
 	}
-	
+
+	public boolean getHaveFallingRock() {
+		return haveFallingRock;
+	}
+
+	public boolean generateRock() {
+
+		Random random = new Random();
+		int rand = random.nextInt(10);
+		if (rand == 1) {
+			return true;
+		}
+
+		return false;
+	}
+
 	Rectangle getXRect(int direction) {
 		if (direction == 1) {
 			return new Rectangle(x, y, width, 1);
