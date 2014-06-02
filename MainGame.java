@@ -18,8 +18,8 @@ import javax.swing.JPanel;
 
 public class MainGame extends JPanel {
 	/**
-	*
-	*/
+*
+*/
 	private static final long serialVersionUID = -6482705247828045324L;
 
 	Player player = null;
@@ -150,6 +150,14 @@ public class MainGame extends JPanel {
 				player.makePlayerBig();
 			} else if (key == KeyEvent.VK_R) {
 				rocks.add(new FallingObject(ball.getX(), ball.getY()));
+				//Check if the falling rock will not go out from the frame right border
+				if ((ball.getX() + rocks.get(rocks.size() - 1).width) > Constants.VISIBLE_WIDTH) {
+					
+					rocks.get(rocks.size() - 1).setX(
+							Constants.VISIBLE_WIDTH
+									- rocks.get(rocks.size() - 1).width);
+					
+				}
 			} else {
 				player.keyReleased(e);
 			}
@@ -228,7 +236,7 @@ public class MainGame extends JPanel {
 
 					ball.move();
 					// System.out.println("X coordinate of the BALL is "
-					// + ball.getX() + "  Y coordinate of the BALL is "
+					// + ball.getX() + " Y coordinate of the BALL is "
 					// + ball.getY());
 					player.move();
 					collisionCheck();
@@ -239,8 +247,7 @@ public class MainGame extends JPanel {
 							r.move();
 						}
 					}
-					
-			
+
 					paintThread.resumeThread();
 					Thread.sleep(tempSpeed);
 
@@ -355,7 +362,13 @@ public class MainGame extends JPanel {
 
 				if (generateFallingRock()) {
 					// Add new falling rock in the List
-					rocks.add(new FallingObject(ball.getX(), ball.getY()));
+					rocks.add(new FallingObject(ball.getX(), ball.getY()));	
+					//Check if the falling rock will not go out from the frame right border
+					if ((ball.getX() + rocks.get(rocks.size() - 1).width) > Constants.VISIBLE_WIDTH) {
+						rocks.get(rocks.size() - 1).setX(
+								Constants.VISIBLE_WIDTH
+										- rocks.get(rocks.size() - 1).width);					
+					}
 				}
 				// manage the Y movement
 				if (ball.getRect().intersects(br.getXRect(ball.getYDir()))) {
@@ -403,7 +416,6 @@ public class MainGame extends JPanel {
 			}
 		}
 
-	
 	}
 
 	public void stopGame(String msg) {
@@ -501,7 +513,7 @@ public class MainGame extends JPanel {
 					player.life++;
 				msg = "+1 Life";
 				pauseGame(msg);
-				//Draw the msg for 500ms
+				// Draw the msg for 500ms
 				paintThread.resumeThread();
 				try {
 					Thread.sleep(500);
