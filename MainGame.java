@@ -9,17 +9,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Iterator;
-//import java.util.Timer;
-//import java.util.TimerTask;
-
-import java.util.Random;
-
 import javax.swing.JPanel;
 
 public class MainGame extends JPanel {
-	/**
-*
-*/
+
 	private static final long serialVersionUID = -6482705247828045324L;
 
 	Player player = null;
@@ -150,13 +143,14 @@ public class MainGame extends JPanel {
 				player.makePlayerBig();
 			} else if (key == KeyEvent.VK_R) {
 				rocks.add(new FallingObject(ball.getX(), ball.getY()));
-				//Check if the falling rock will not go out from the frame right border
+				// Check if the falling rock will not go out from the frame
+				// right border
 				if ((ball.getX() + rocks.get(rocks.size() - 1).width) > Constants.VISIBLE_WIDTH) {
-					
+
 					rocks.get(rocks.size() - 1).setX(
 							Constants.VISIBLE_WIDTH
 									- rocks.get(rocks.size() - 1).width);
-					
+
 				}
 			} else {
 				player.keyReleased(e);
@@ -358,18 +352,21 @@ public class MainGame extends JPanel {
 		while (it.hasNext()) {
 			Brick br = it.next();
 			if (ball.getRect().intersects(br.getRect())) {
-				bricks.remove(counter);
+				
 
-				if (generateFallingRock()) {
+				//Check if the brick keep falling rock object and remove the brick after that 
+				if (bricks.get(counter).haveFallingRock) {
 					// Add new falling rock in the List
-					rocks.add(new FallingObject(ball.getX(), ball.getY()));	
-					//Check if the falling rock will not go out from the frame right border
+					rocks.add(new FallingObject(ball.getX(), ball.getY()));
+					// Check if the falling rock will not go out from the frame right border
 					if ((ball.getX() + rocks.get(rocks.size() - 1).width) > Constants.VISIBLE_WIDTH) {
 						rocks.get(rocks.size() - 1).setX(
 								Constants.VISIBLE_WIDTH
-										- rocks.get(rocks.size() - 1).width);					
+										- rocks.get(rocks.size() - 1).width);
 					}
 				}
+				bricks.remove(counter);
+				
 				// manage the Y movement
 				if (ball.getRect().intersects(br.getXRect(ball.getYDir()))) {
 					ball.changeYDir();
@@ -477,17 +474,6 @@ public class MainGame extends JPanel {
 		ball.resetState(player.getX() + player.getWidth() / 2
 				- Constants.BALL_RADIUS / 2, player.getY()
 				- Constants.BALL_RADIUS);
-	}
-
-	public boolean generateFallingRock() {
-
-		Random random = new Random();
-		int rand = random.nextInt(10);
-		if (rand == 1) {
-			return true;
-		}
-
-		return false;
 	}
 
 	public void setFunction(FallingObject fo) {
