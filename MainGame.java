@@ -229,9 +229,6 @@ public class MainGame extends JPanel {
 				try {
 
 					ball.move();
-					// System.out.println("X coordinate of the BALL is "
-					// + ball.getX() + " Y coordinate of the BALL is "
-					// + ball.getY());
 					player.move();
 					collisionCheck();
 					if (!rocks.isEmpty()) {
@@ -511,13 +508,17 @@ public class MainGame extends JPanel {
 				break;
 			}
 			case 3: {
-				// speed down
-				tempSpeed -= 3;
+				// speed down the ball
+				ball.slowDown();
+				// speed down the whole game
+				//tempSpeed -= 3;
 				break;
 			}
 			case 4: {
-				// speed up
-				tempSpeed += 3;
+				// speed up the whole game
+				// tempSpeed += 3;
+				// speed up the game
+				ball.accelerate();
 				break;
 			}
 			default: {
