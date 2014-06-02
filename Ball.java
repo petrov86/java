@@ -92,6 +92,8 @@ public class Ball extends GameObject {
 	public void resetState(int x, int y) {
 		this.x = x;
 		this.y = y;
+		xDirMoveSpeed = 2;
+		yDirMoveSpeed = 2;
 	}
 
 	public void setXDir(int x) {

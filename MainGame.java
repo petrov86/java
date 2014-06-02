@@ -349,13 +349,14 @@ public class MainGame extends JPanel {
 		while (it.hasNext()) {
 			Brick br = it.next();
 			if (ball.getRect().intersects(br.getRect())) {
-				
 
-				//Check if the brick keep falling rock object and remove the brick after that 
+				// Check if the brick keep falling rock object and remove the
+				// brick after that
 				if (bricks.get(counter).haveFallingRock) {
 					// Add new falling rock in the List
 					rocks.add(new FallingObject(ball.getX(), ball.getY()));
-					// Check if the falling rock will not go out from the frame right border
+					// Check if the falling rock will not go out from the frame
+					// right border
 					if ((ball.getX() + rocks.get(rocks.size() - 1).width) > Constants.VISIBLE_WIDTH) {
 						rocks.get(rocks.size() - 1).setX(
 								Constants.VISIBLE_WIDTH
@@ -363,7 +364,7 @@ public class MainGame extends JPanel {
 					}
 				}
 				bricks.remove(counter);
-				
+
 				// manage the Y movement
 				if (ball.getRect().intersects(br.getXRect(ball.getYDir()))) {
 					ball.changeYDir();
@@ -479,13 +480,13 @@ public class MainGame extends JPanel {
 			switch (fo.getFunction()) {
 
 			case 0: {
-				// make player big
+				// make player small
 				if (player != null)
 					player.makePlayerSmall();
 				break;
 			}
 			case 1: {
-				// make player small
+				// make player big
 				if (player != null)
 					player.makePlayerBig();
 				break;
@@ -511,7 +512,7 @@ public class MainGame extends JPanel {
 				// speed down the ball
 				ball.slowDown();
 				// speed down the whole game
-				//tempSpeed -= 3;
+				// tempSpeed -= 3;
 				break;
 			}
 			case 4: {

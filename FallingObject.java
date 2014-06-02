@@ -12,8 +12,8 @@ public class FallingObject extends GameObject {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	String arr[] = { "images/rock_11.png", "images/rock_12.png",
-			"images/rock_13.png", "images/rock_14.png", "images/rock_15.png" };
+	String arr[] = { "images/grenade_PNG1351.png", "images/star_PNG1591.png",
+			"images/heart_PNG691.png", "images/shield_PNG1281.png", "images/shield_PNG1283.png" };
 
 	int speed = 0;
 	private boolean isVisible = false;
