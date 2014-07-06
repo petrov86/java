@@ -25,7 +25,6 @@ public class MainGame extends JPanel {
 	ArrayList<Brick> bricks = null;
 	ArrayList<FallingObject> rocks = null;
 	String msg = null;
-	String playerFile = null;
 	boolean isGameActive = false;
 	boolean isGamePaused = false;
 	boolean isGameStarted;
@@ -34,6 +33,7 @@ public class MainGame extends JPanel {
 	int speed[] = new int[1]; // The Level class initialize the value
 	int tempSpeed = 0;
 	int level[] = new int[1]; // The Level class initialize the value
+	int score = 0;
 
 	MainGame() {
 		level[0] = 0;
@@ -53,8 +53,7 @@ public class MainGame extends JPanel {
 		background = new Background();
 		Level.setLevel(level, speed, bricks);
 		tempSpeed = speed[0];
-		playerFile = Constants.LEVELS_LIST.get(level[0]).player;
-		player = new Player(playerFile);
+		player = new Player();
 		ball = new Ball(player.getX() + player.getWidth() / 2
 				- Constants.BALL_RADIUS / 2, player.getY()
 				- Constants.BALL_RADIUS);
@@ -77,15 +76,21 @@ public class MainGame extends JPanel {
 
 		g.drawImage(player.getImage(), player.getX(), player.getY(),
 				player.getWidth(), player.getHeight(), this);
-
+		g.setColor(Color.white);
 		g.fillOval(ball.getX(), ball.getY(), ball.getWidth(), ball.getHeight());
 
 		Iterator<Brick> it = bricks.iterator();
 		while (it.hasNext()) {
 
-			Brick br = it.next();
-			g.drawImage(br.getImage(), br.getX(), br.getY(), br.getWidth(),
-					br.getHeight(), this);
+			try {
+				Brick br = it.next();
+				g.drawImage(br.getImage(), br.getX(), br.getY(), br.getWidth(),
+						br.getHeight(), this);
+			} catch (Exception e) {
+				System.out.println("Exception");
+				e.printStackTrace();
+				break;
+			}
 
 		}
 
@@ -102,13 +107,19 @@ public class MainGame extends JPanel {
 
 		if (!isGameActive || isGamePaused) {
 			g.setFont(new Font("Bold", Font.BOLD, 36));
-			setForeground(Color.cyan);
+			g.setColor(Color.cyan);
 			int stringLen = (int) g.getFontMetrics().getStringBounds(msg, g)
 					.getWidth();
 			int centerXPosition = Constants.WIDTH / 2 - stringLen / 2;
 			int centerYPosition = Constants.GAME_PANEL_HEIGTH * 2 / 3;
 			g.drawString(msg, centerXPosition, centerYPosition);
 		}
+
+		// Paint Score
+		g.setFont(new Font("Bold", Font.BOLD, 16));
+		g.setColor(Color.magenta);
+		g.drawString("Score: " + score, 20, 30);
+
 		Toolkit.getDefaultToolkit().sync();
 		g.dispose();
 	}
@@ -138,9 +149,9 @@ public class MainGame extends JPanel {
 			} else if (key == KeyEvent.VK_Z) {
 				ball.resumeMove();
 			} else if (key == KeyEvent.VK_W) {
-				player.makePlayerSmall();
+				player.makePlayerSmaller();
 			} else if (key == KeyEvent.VK_E) {
-				player.makePlayerBig();
+				player.makePlayerBigger();
 			} else if (key == KeyEvent.VK_R) {
 				rocks.add(new FallingObject(ball.getX(), ball.getY()));
 				// Check if the falling rock will not go out from the frame
@@ -306,6 +317,7 @@ public class MainGame extends JPanel {
 
 			} else {
 				stopGame("GAME OVER");
+				score = 0;
 				isGameStarted = false;
 			}
 
@@ -364,7 +376,7 @@ public class MainGame extends JPanel {
 					}
 				}
 				bricks.remove(counter);
-
+				score += 5;
 				// manage the Y movement
 				if (ball.getRect().intersects(br.getXRect(ball.getYDir()))) {
 					ball.changeYDir();
@@ -405,6 +417,7 @@ public class MainGame extends JPanel {
 						setFunction(r);
 					}
 					rocks.remove(counter);
+					score += 10;
 					break;
 				}
 				counter++;
@@ -465,7 +478,7 @@ public class MainGame extends JPanel {
 	}
 
 	public void resetBallAndPlayer() {
-		player.setPlayerImage(playerFile);
+		player.setPlayerImage();
 		player.resetState();
 		rocks.clear();
 		tempSpeed = speed[0];
@@ -482,13 +495,13 @@ public class MainGame extends JPanel {
 			case 0: {
 				// make player small
 				if (player != null)
-					player.makePlayerSmall();
+					player.makePlayerSmaller();
 				break;
 			}
 			case 1: {
 				// make player big
 				if (player != null)
-					player.makePlayerBig();
+					player.makePlayerBigger();
 				break;
 			}
 			case 2: {
@@ -511,14 +524,10 @@ public class MainGame extends JPanel {
 			case 3: {
 				// speed down the ball
 				ball.slowDown();
-				// speed down the whole game
-				// tempSpeed -= 3;
 				break;
 			}
 			case 4: {
-				// speed up the whole game
-				// tempSpeed += 3;
-				// speed up the game
+				// speed up the ball
 				ball.accelerate();
 				break;
 			}

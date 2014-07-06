@@ -28,8 +28,11 @@ public class FallingObject extends GameObject {
 		try {
 			ImageIcon ii = new ImageIcon(this.getClass().getResource(arr[rand]));
 			image = ii.getImage();
-			width = image.getWidth(null);
-			heigth = image.getHeight(null);
+			//width = image.getWidth(null);
+			//heigth = image.getHeight(null);
+			//resize the falling objects 
+			width = 30;
+			heigth = 30;
 			isVisible = true;
 
 		} catch (Exception e) {
@@ -48,6 +51,8 @@ public class FallingObject extends GameObject {
 		return function;
 	}
 
+	
+	
 	@Override
 	Rectangle getRect() {
 		return new Rectangle(x, y, width, heigth);

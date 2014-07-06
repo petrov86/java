@@ -11,56 +11,51 @@ public class Player extends GameObject {
 	 * 
 	 */
 	private static final long serialVersionUID = 5251546542863186464L;
-	private String bigPlayer = Constants.PLAYER_FILES[0];
-	private String smallPlayer = Constants.PLAYER_FILES[1];
-	private String currentPlayer = null;
+	private String player = Constants.PLAYER_FILE;
 	int dx;
 	int life;
 
-	public Player(String file) {
+	public Player() {
 
 		// this.player = player;
 		System.out.println("==================================");
 		System.out.println("PLAYER CREATED");
 		System.out.println("==================================");
 		life = 3;
-		setPlayerImage(file);
+		setPlayerImage();
 		resetState();
 
 	}
 
-	public void setPlayerImage(String file) {
+	public void setPlayerImage() {
 		try {
-			ImageIcon ii = new ImageIcon(this.getClass().getResource(file));
+			ImageIcon ii = new ImageIcon(this.getClass().getResource(player));
 			image = ii.getImage();
 			width = image.getWidth(null);
 			heigth = image.getHeight(null);
-			currentPlayer = file;
 		} catch (Exception e) {
 			System.out.println("Error loading player image!");
-			System.out.println(file);
+			System.out.println(player);
 		}
 
 	}
 
-	public void makePlayerBig() {
-		if (!currentPlayer.equals(bigPlayer)) {
+	public void makePlayerBigger() {
+		if (this.width < 150) {
 			System.out.println("==================================");
-			System.out.println("PLAYER IMAGE CHANGED ");
+			System.out.println("PLAYER IMAGE RESIZED");
 			System.out.println("==================================");
-			setPlayerImage(bigPlayer);
-			currentPlayer = bigPlayer;
+			this.width += 50;
 
 		}
 	}
 
-	public void makePlayerSmall() {
-		if (!currentPlayer.equals(smallPlayer)) {
+	public void makePlayerSmaller() {
+		if (this.width >= 100) {
 			System.out.println("==================================");
-			System.out.println("PLAYER IMAGE CHANGED ");
+			System.out.println("PLAYER IMAGE RESIZED");
 			System.out.println("==================================");
-			setPlayerImage(smallPlayer);
-			currentPlayer = smallPlayer;
+			this.width -= 50;
 		}
 	}
 

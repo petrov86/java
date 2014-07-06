@@ -14,6 +14,7 @@ public class GameObject extends JPanel{
 	public int heigth;
 	public int x;
 	public int y;
+	public Background background;
 	public Image image;
 	
 	
