@@ -256,7 +256,7 @@ public class Calculator extends JFrame implements ActionListener {
 					for (int i = 0; i < field.length - 1; i++) {
 						tmp += String.valueOf(field[i]);
 					}
-				
+
 					// The check is now in displayManager
 					/*
 					 * if (tmp.endsWith(".")) { tmp = "." + tmp.substring(0,
@@ -322,15 +322,15 @@ public class Calculator extends JFrame implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			// get operation and the entered value till now
+			// get operation and the entered value
 			String input = ((JButton) e.getSource()).getName();
 			String displayedValue = firstDisplay.getText();
 
 			if (!input.equals("=")) {
-
 				if ((A == null && !displayedValue.equals(NULL_VALUE) && !displayedValue
 						.equals(EMPTY_VALUE))
-						|| (A.equals(result) && operation == null && nextOperation == null)) {
+						|| (operation == null && nextOperation == null)) {
+
 					A = displayedValue;
 					isFirstDisplayChanged = false;
 
@@ -344,13 +344,6 @@ public class Calculator extends JFrame implements ActionListener {
 				} else {
 					nextOperation = input;
 				}
-
-				// System.out.println("=======================");
-				// System.out.println("a = " + A);
-				// System.out.println("b = " + B);
-				// System.out.println("operation = " + operation);
-				// System.out.println("next = " + nextOperation);
-				// System.out.println(isFirstDisplayChanged);
 			}
 			/*********************************************************************************/
 			// manage the second display value
@@ -392,13 +385,6 @@ public class Calculator extends JFrame implements ActionListener {
 			// Calculate if it is ready
 			if (isItReadyToCalculate()) {
 
-				// System.out.println("=======================");
-				// System.out.println("a = " + A);
-				// System.out.println("b = " + B);
-				// System.out.println("operation = " + operation);
-				// System.out.println("next = " + nextOperation);
-				// System.out.println(isFirstDisplayChanged);
-
 				result = operation(A, B, operation);
 				A = result;
 				// result = null;
@@ -413,13 +399,6 @@ public class Calculator extends JFrame implements ActionListener {
 
 				displayedValue = A;
 				displayManager(A, enteredValueAndOperation);
-
-				// System.out.println("=======================");
-				// System.out.println("a = " + A);
-				// System.out.println("b = " + B);
-				// System.out.println("operation = " + operation);
-				// System.out.println("next = " + nextOperation);
-				// System.out.println(isFirstDisplayChanged);
 			}
 
 		}
@@ -436,21 +415,31 @@ public class Calculator extends JFrame implements ActionListener {
 
 		return isItReady;
 	}
-	
-	private void validateNumbers(){
-		if (A.startsWith(".")){
+
+	private void validateNumbers() {
+		if (A.startsWith(".")) {
 			A = A.substring(1);
 		}
-		
-		if (B.startsWith(".")){
+
+		if (B.startsWith(".")) {
 			B = B.substring(1);
 		}
 	}
 
 	private String operation(String numA, String numB, String operation) {
 
-		double a = Double.parseDouble(numA);
-		double b = Double.parseDouble(numB);
+		double a = 0;
+		double b = 0;
+
+		try {
+			a = Double.parseDouble(numA);
+			b = Double.parseDouble(numB);
+		} catch (NumberFormatException e) {
+			// TODO: handle exception
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
 		long num1 = 0L;
 		long num2 = 0L;
 		String result = null;
@@ -481,6 +470,7 @@ public class Calculator extends JFrame implements ActionListener {
 			}
 
 			if (operation.equals("/")) {
+
 				lRes = num1 / num2;
 			}
 			result = String.valueOf(lRes);
@@ -520,6 +510,11 @@ public class Calculator extends JFrame implements ActionListener {
 		WriteFile.write(A + " " + operation + " " + B + " = " + result + "\n");
 		System.out.println("------------");
 		System.out.println(result);
+
+		if (result.equals("Infinity")) {
+			result = "Cannot divide by zero";
+		}
+
 		return result;
 
 	}
