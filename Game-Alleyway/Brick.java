@@ -12,11 +12,11 @@ public class Brick extends GameObject {
 	 */
 	private static final long serialVersionUID = 5106372808401735999L;
 
-	String bricks[] = { "images/brick-orange2.png", "images/brick-yellow2.png",
+	private String bricks[] = { "images/brick-orange2.png", "images/brick-yellow2.png",
 			"images/brick-red2.png", "images/brick-blue2.png",
 			"images/brick-green2.png" };
 
-	public boolean haveFallingRock;
+	private boolean haveFallingRock;
 
 	public Brick(int x, int y) {
 		Random random = new Random();
@@ -56,7 +56,7 @@ public class Brick extends GameObject {
 		return haveFallingRock;
 	}
 
-	public boolean generateRock() {
+	private boolean generateRock() {
 
 		Random random = new Random();
 		int rand = random.nextInt(10);
