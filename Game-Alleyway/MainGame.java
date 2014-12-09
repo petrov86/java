@@ -205,7 +205,7 @@ public class MainGame extends JPanel {
 
 		public void suspendThread() {
 			isPainted = true;
-			System.out.println("Suspend paint thread");
+			//System.out.println("Suspend paint thread");
 		}
 
 		public void suspendThread(long time) {
@@ -222,7 +222,7 @@ public class MainGame extends JPanel {
 
 		public synchronized void resumeThread() {
 			isPainted = false;
-			System.out.println("Resume paint thread");
+			//System.out.println("Resume paint thread");
 			notify();
 		}
 
@@ -364,7 +364,7 @@ public class MainGame extends JPanel {
 
 				// Check if the brick keep falling rock object and remove the
 				// brick after that
-				if (bricks.get(counter).haveFallingRock) {
+				if (bricks.get(counter).getHaveFallingRock()) {
 					// Add new falling rock in the List
 					rocks.add(new FallingObject(ball.getX(), ball.getY()));
 					// Check if the falling rock will not go out from the frame
