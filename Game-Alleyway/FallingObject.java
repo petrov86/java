@@ -8,14 +8,15 @@ import javax.swing.ImageIcon;
 public class FallingObject extends GameObject {
 
 	/**
-	 * 
-	 */
+*
+*/
 	private static final long serialVersionUID = 1L;
 
 	String arr[] = { "images/grenade_PNG1351.png", "images/star_PNG1591.png",
-			"images/heart_PNG691.png", "images/shield_PNG1281.png", "images/shield_PNG1283.png" };
+			"images/heart_PNG691.png", "images/shield_PNG1281.png",
+			"images/shield_PNG1283.png" };
 
-	int speed = 0;
+	private int speed = 0;
 	private boolean isVisible = false;
 	private int function = 0;
 
@@ -28,9 +29,9 @@ public class FallingObject extends GameObject {
 		try {
 			ImageIcon ii = new ImageIcon(this.getClass().getResource(arr[rand]));
 			image = ii.getImage();
-			//width = image.getWidth(null);
-			//heigth = image.getHeight(null);
-			//resize the falling objects 
+			// width = image.getWidth(null);
+			// heigth = image.getHeight(null);
+			// resize the falling objects
 			width = 30;
 			heigth = 30;
 			isVisible = true;
@@ -51,8 +52,6 @@ public class FallingObject extends GameObject {
 		return function;
 	}
 
-	
-	
 	@Override
 	Rectangle getRect() {
 		return new Rectangle(x, y, width, heigth);
