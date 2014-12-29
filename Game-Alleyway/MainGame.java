@@ -489,7 +489,7 @@ public class MainGame extends JPanel {
 
 	public void setFunction(FallingObject fo) {
 		if (fo != null) {
-			System.out.println(fo.getFunction());
+			System.out.println("Falling Object is: " + fo.getFunction());
 			switch (fo.getFunction()) {
 
 			case 0: {
