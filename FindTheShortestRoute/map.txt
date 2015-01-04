@@ -1,0 +1,16 @@
+1,Sofiq
+2,Plovdiv
+3,Stara Zagora
+4,Sliven
+5,Bourgas
+6,Varna
+7,Veliko Tarnovo
+8,Botevgrad
+
+1,2,118.5
+5,6,95.2
+7,8,120.6
+6,7,180
+2,3,110
+3,4,60
+4,5,100
