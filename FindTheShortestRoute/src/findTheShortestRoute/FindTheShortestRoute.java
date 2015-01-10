@@ -4,13 +4,29 @@ import java.util.Scanner;
 
 public class FindTheShortestRoute {
 	public static void main(String[] args) {
-		System.out.println("OPTIONS:");
-		System.out.println("1 - Enter places and distances");
-		System.out.println("2 - Calculate route between two places");
-		System.out.println("3 - Calculate route");
 
-		Scanner s = new Scanner(System.in);
-		int choice = s.nextInt();
+		int choice = 0;
+
+		while (true) {
+			System.out.println("OPTIONS:");
+			System.out.println("1 - Enter places and distances");
+			System.out.println("2 - Calculate route between two places");
+			System.out.println("3 - Calculate route");
+			Scanner s = new Scanner(System.in);
+
+			try {
+				choice = s.nextInt();
+				break;
+			} catch (java.util.InputMismatchException e) {
+				System.out.println("Incorrect choice!");
+				// TODO: handle exception
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			s.close();
+		}
+		
+
 
 		switch (choice) {
 		case 1:
@@ -28,12 +44,13 @@ public class FindTheShortestRoute {
 		default:
 			break;
 		}
-		s.close();
+
 	}
 
-	private static void 			calculateRoute() {
+	private static void calculateRoute() {
 		// TODO Auto-generated method stub
-		
+		Route r = new Route("", "");
+
 	}
 
 	private static void fillMap() {
