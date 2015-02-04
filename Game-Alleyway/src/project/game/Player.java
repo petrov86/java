@@ -27,6 +27,13 @@ public class Player extends GameObject {
 
 	}
 
+	@Override
+	public void setX(int x) {
+		if (x > 0 || x < Constants.VISIBLE_WIDTH - this.width)
+			this.x = x;
+
+	}
+
 	public void setPlayerImage() {
 		try {
 			ImageIcon ii = new ImageIcon(this.getClass().getResource(player));
@@ -70,7 +77,6 @@ public class Player extends GameObject {
 	public void keyPressed(KeyEvent e) {
 
 		int key = e.getKeyCode();
-
 		if (key == KeyEvent.VK_LEFT) {
 			dx = -2;
 
