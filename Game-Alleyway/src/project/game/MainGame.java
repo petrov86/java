@@ -7,8 +7,13 @@ import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
+
 import javax.swing.JPanel;
 
 public class MainGame extends JPanel {
@@ -21,6 +26,7 @@ public class MainGame extends JPanel {
 	MovePlayerThread movePlayerThread = null;
 	PaintThread paintThread = null;
 	KeyListener myListenner = null;
+	MouseListener myMouseLinstener = null;
 	Ball ball = null;
 	ArrayList<Brick> bricks = null;
 	ArrayList<FallingObject> rocks = null;
@@ -39,6 +45,9 @@ public class MainGame extends JPanel {
 		level[0] = 0;
 		myListenner = new MyAdapter();
 		addKeyListener(myListenner);
+		myMouseLinstener = new MyMouseListener();
+		addMouseListener(myMouseLinstener);
+		addMouseMotionListener((MouseMotionListener) myMouseLinstener);
 		setFocusable(true);
 		setDoubleBuffered(true);
 		bricks = new ArrayList<Brick>();
@@ -174,7 +183,54 @@ public class MainGame extends JPanel {
 
 	}
 
-	class PaintThread extends Thread {
+	private class MyMouseListener extends MouseAdapter {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			super.mouseClicked(e);
+
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			// TODO Auto-generated method stub
+			super.mouseDragged(e);
+			int xMaxRightPosition = Constants.VISIBLE_WIDTH - player.getWidth();
+			int x = e.getX();
+			if (x > 0 && x < xMaxRightPosition) {
+				player.setX(x);
+			} else if (x < 0 && player.getX() > 0) {
+				player.setX(0);
+			} else if (x > xMaxRightPosition
+					&& player.getX() < xMaxRightPosition) {
+				player.setX(xMaxRightPosition);
+			}
+
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			super.mousePressed(e);
+			int key = e.getButton();
+			int y = e.getY();
+			if (key == MouseEvent.BUTTON3 && y < Constants.BOTTOM - 40) {
+				if (!isGamePaused && isGameActive) {
+					pauseGame("PAUSE");
+					paintThread.suspendThread(50);
+
+				} else if (isGamePaused && isGameActive) {
+					resumeGame();
+				} else {
+					startGame();
+				}
+			}
+		}
+
+	}
+
+	private class PaintThread extends Thread {
 
 		boolean isPainted = false;
 
@@ -205,7 +261,7 @@ public class MainGame extends JPanel {
 
 		public void suspendThread() {
 			isPainted = true;
-			//System.out.println("Suspend paint thread");
+			// System.out.println("Suspend paint thread");
 		}
 
 		public void suspendThread(long time) {
@@ -222,7 +278,7 @@ public class MainGame extends JPanel {
 
 		public synchronized void resumeThread() {
 			isPainted = false;
-			//System.out.println("Resume paint thread");
+			// System.out.println("Resume paint thread");
 			notify();
 		}
 
@@ -489,7 +545,7 @@ public class MainGame extends JPanel {
 
 	public void setFunction(FallingObject fo) {
 		if (fo != null) {
-			System.out.println("Falling Object is: " + fo.getFunction());
+			System.out.println(fo.getFunction());
 			switch (fo.getFunction()) {
 
 			case 0: {
