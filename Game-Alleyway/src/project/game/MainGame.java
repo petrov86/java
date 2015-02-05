@@ -131,7 +131,7 @@ public class MainGame extends JPanel {
 		int tempX = 110;
 		if (score > 100)
 			tempX += 20;
-		g.drawString("Lives: " + player.life, 110, 30);
+		g.drawString("Lives: " + player.life, tempX, 30);
 		Toolkit.getDefaultToolkit().sync();
 		g.dispose();
 	}
