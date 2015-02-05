@@ -54,7 +54,12 @@ public class Ball extends GameObject {
 
 	public void move() {
 
-		x += (xDirMoveSpeed * xdir);
+		if ((x + xDirMoveSpeed * xdir) < Constants.VISIBLE_WIDTH - width) {
+			x += (xDirMoveSpeed * xdir);
+		} else {
+			x = Constants.VISIBLE_WIDTH - width;
+		}
+
 		y += (yDirMoveSpeed * ydir);
 		if (x <= 0) {
 			setXDir(1);
