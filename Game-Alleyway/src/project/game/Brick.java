@@ -12,15 +12,17 @@ public class Brick extends GameObject {
 	 */
 	private static final long serialVersionUID = 5106372808401735999L;
 
-	private String bricks[] = { "images/brick-orange2.png", "images/brick-yellow2.png",
-			"images/brick-red2.png", "images/brick-blue2.png",
-			"images/brick-green2.png" };
+	private String bricks[] = { "images/brick-green2.png",
+			"images/brick-yellow2.png", "images/brick-orange2.png",
+			"images/brick-red2.png", "images/brick-blue2.png" };
 
 	private boolean haveFallingRock;
+	private int brickColor;
 
 	public Brick(int x, int y) {
 		Random random = new Random();
 		int rand = random.nextInt(bricks.length);
+		brickColor = rand;
 		this.x = x;
 		this.y = y;
 		if (generateRock()) {
@@ -38,6 +40,33 @@ public class Brick extends GameObject {
 
 		} catch (Exception e) {
 			System.out.println("Error loading brick image!");
+		}
+	}
+
+	public int getBrickColor() {
+		return brickColor;
+	}
+
+	public void changeBrick() {
+		if (brickColor > 0) {
+			brickColor--;
+			haveFallingRock = false;
+			try {
+				ImageIcon ii = new ImageIcon(this.getClass().getResource(
+						bricks[brickColor]));
+				image = ii.getImage();
+				width = image.getWidth(null);
+				heigth = image.getHeight(null);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			if (generateRock()) {
+				haveFallingRock = true;
+			} else {
+				haveFallingRock = false;
+			}
+
 		}
 	}
 
