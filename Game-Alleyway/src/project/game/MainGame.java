@@ -431,8 +431,13 @@ public class MainGame extends JPanel {
 										- rocks.get(rocks.size() - 1).width);
 					}
 				}
-				bricks.remove(counter);
-				score += 5;
+				if (bricks.get(counter).getBrickColor() != 0) {
+					bricks.get(counter).changeBrick();
+					score += 5;
+				} else {
+					bricks.remove(counter);
+					score += 10;
+				}
 				// manage the Y movement
 				if (ball.getRect().intersects(br.getXRect(ball.getYDir()))) {
 					ball.changeYDir();
