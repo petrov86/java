@@ -70,8 +70,8 @@ public class MainGame extends JPanel {
 		paintThread = new PaintThread();
 		paintThread.start();
 		paintThread.setPriority(3);
-		System.out.println("Paint Thread Priority is : "
-				+ paintThread.getPriority());
+		// System.out.println("Paint Thread Priority is : "
+		// + paintThread.getPriority());
 		movePlayerThread = new MovePlayerThread();
 		movePlayerThread.start();
 	}
@@ -96,7 +96,7 @@ public class MainGame extends JPanel {
 				g.drawImage(br.getImage(), br.getX(), br.getY(), br.getWidth(),
 						br.getHeight(), this);
 			} catch (Exception e) {
-				System.out.println("Exception");
+
 				e.printStackTrace();
 				break;
 			}
@@ -128,7 +128,10 @@ public class MainGame extends JPanel {
 		g.setFont(new Font("Bold", Font.BOLD, 16));
 		g.setColor(Color.magenta);
 		g.drawString("Score: " + score, 20, 30);
-
+		int tempX = 110;
+		if (score > 100)
+			tempX += 20;
+		g.drawString("Lives: " + player.life, 110, 30);
 		Toolkit.getDefaultToolkit().sync();
 		g.dispose();
 	}
@@ -504,7 +507,7 @@ public class MainGame extends JPanel {
 			// this.ball.resetState(player.getX() + player.getWidth() / 2
 			// - Constants.BALL_RADIUS / 2, player.getY()
 			// - Constants.BALL_RADIUS);
-			System.out.println("What TODO");
+			// System.out.println("What TODO");
 		}
 		moveObjects = new MoveThread();
 		moveObjects.start();
@@ -550,7 +553,7 @@ public class MainGame extends JPanel {
 
 	public void setFunction(FallingObject fo) {
 		if (fo != null) {
-			System.out.println(fo.getFunction());
+			// System.out.println(fo.getFunction());
 			switch (fo.getFunction()) {
 
 			case 0: {
